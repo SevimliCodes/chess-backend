@@ -1,4 +1,4 @@
-import {IsDate, IsDateString, IsString, MaxLength} from "class-validator";
+import {IsDateString, IsString, MaxLength} from "class-validator";
 
 export class NewsCreateAdminDto {
     @IsString()

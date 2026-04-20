@@ -1,6 +1,5 @@
 import {Module} from '@nestjs/common';
 import {ConfigModule, ConfigService} from '@nestjs/config';
-import {TypeOrmModule} from '@nestjs/typeorm';
 import {APP_GUARD, APP_FILTER} from '@nestjs/core';
 
 
@@ -18,10 +17,29 @@ import {BooksModule} from './features/books/books.module';
 import {MatchesModule} from './features/matches/matches.module';
 import {ReportsModule} from './features/reports/reports.module';
 import {TempModule} from "@/features/temp/temp.module";
+import { TypeOrmModule } from '@nestjs/typeorm';
+import * as Joi from "joi";
+import {NewsModule} from "@/features/news/news.module";
 
 @Module({
     imports: [
-        ConfigModule.forRoot({isGlobal: true}),
+        ConfigModule.forRoot({isGlobal: true,
+            validationSchema: Joi.object({
+            SECRET_KEY: Joi.string().required(),
+            PORT: Joi.number().required(),
+            DB_URL: Joi.string().required(),
+            DEFAULT_DB_URL: Joi.string().required(),
+            TEST_DB_URL: Joi.string().required(),
+            JWT_EXPIRE: Joi.string().required(),
+            OTP_EXPIRE: Joi.number().required(),
+            OTP_RESEND: Joi.number().required(),
+            POSTGRES_USER: Joi.string().required(),
+            POSTGRES_PASSWORD: Joi.string().required(),
+            POSTGRES_DB: Joi.string().required(),
+            DEFAULT_SIZE: Joi.number().required(),
+            DEFAULT_PAGE: Joi.number().required(),
+            BASE_URL: Joi.string().required(),
+            }),}),
 
         TypeOrmModule.forRootAsync({
             imports: [ConfigModule],
@@ -31,14 +49,16 @@ import {TempModule} from "@/features/temp/temp.module";
                 port: config.get<number>('DB_PORT', 5432),
                 username: config.get('DB_USERNAME', 'postgres'),
                 password: config.get('DB_PASSWORD', '1111'),
-                database: config.get('DB_NAME', 'dars209'),
+                database: config.get('DB_NAME', 'postgres-db'),
                 entities: [__dirname + '/**/*.entity{.ts,.js}'],
                 synchronize: config.get('NODE_ENV') !== 'production',
                 logging: config.get('NODE_ENV') === 'development',
             }),
+
             inject: [ConfigService],
         }),
-
+        ConfigModule,
+        NewsModule,
         AuthModule,
         UsersModule,
         LanguagesModule,
@@ -55,7 +75,8 @@ import {TempModule} from "@/features/temp/temp.module";
         {provide: APP_GUARD, useClass: RolesGuard},
         {provide: APP_FILTER, useClass: AllExceptionsFilter},
     ],
+
+
 })
 export class AppModule {
 }
-

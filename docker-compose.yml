@@ -1,0 +1,22 @@
+services:
+  chess-backend:
+    build: .
+    env_file:
+      - .env
+    ports:
+      - "3333:3333"
+    restart: always
+    container_name: uzchess
+    networks:
+      - uzchess
+  db:
+    image: postgres:18-alpine
+    env_file:
+      - .env
+    container_name: postgres-db
+    networks:
+      - uzchess
+
+networks:
+  uzchess:
+    driver: bridge
